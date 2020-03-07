@@ -1,9 +1,9 @@
 # lua-wGeometry
 wGeometry - Warcraft 3 Geometry module
 
-### Copy code from /src and use eventDispatcher global
+### Copy code from /src and use wGeometry global
 
-### *OR* use [WLPM](https://github.com/Indaxia/wc3-wlpm-module-manager) and import("eventDispatcher")
+### *OR* use [WLPM](https://github.com/Indaxia/wc3-wlpm-module-manager) and import("wGeometry")
 ```
 wlpm install https://github.com/Indaxia/lua-wGeometry
 ```
@@ -49,3 +49,5 @@ wlpm install https://github.com/Indaxia/lua-wGeometry
   local win2 = cam:worldToWindow(world)
   cam:applyCameraToPlayer(Player(0))
 ```
+
+See the source file for full functions documentation.
