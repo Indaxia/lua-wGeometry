@@ -50,4 +50,4 @@ wlpm install https://github.com/Indaxia/lua-wGeometry
   cam:applyCameraToPlayer(Player(0))
 ```
 
-See the source file for full functions documentation.
+See the [source file](/src/wGeometry.lua) for full functions documentation.
