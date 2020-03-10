@@ -289,9 +289,9 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @see https://en.wikipedia.org/wiki/Aircraft_principal_axes
     yawPitchOffset = function(self, distance, yaw, pitch)
       return Vector3:new(
-        distance * math.cos(yaw) * math.sin(pitch),
-        distance * math.sin(yaw) * math.sin(pitch),
-        distance * math.cos(pitch)
+        distance * math.cos(yaw) * math.cos(pitch),
+        distance * math.sin(yaw) * math.cos(pitch),
+        distance * math.sin(pitch)
       )
     end,
     
