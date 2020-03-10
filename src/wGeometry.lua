@@ -160,7 +160,7 @@ WM("wGeometry", function(import, export, exportDefault)
       local o = {}
       setmetatable(o,self)
       o.x = GetDestructableX(d)
-      o.y = GetDestructableX(d)
+      o.y = GetDestructableY(d)
       o.z = _GetDestructableZ(d)
       return o
     end,
