@@ -8,6 +8,8 @@ WM("wGeometry", function(import, export, exportDefault)
   local Matrix3 = nil
   local Matrix4 = nil
   local Camera = nil
+  local Box = nil
+  local Sphere = nil
   local zTesterLocation = Location(0,0)
   
   local getTerrainZ = function(x,y)
@@ -369,6 +371,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @param c Vector3 sphere center
     -- @param r number sphere radius
     -- @return boolean
+    -- @deprecated use Sphere:containsVector()
     isInSphere = function(self, c, r)
       return self:distanceSquared(c) < (r*r)
     end,
@@ -377,6 +380,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @param vMin
     -- @param vMax
     -- @return boolean
+    -- @deprecated use Box:containsVector()
     isInAABB = function(self, vMin, vMax)
       return (self.x >= vMin.x and self.x <= vMax.x) and
              (self.y >= vMin.y and self.y <= vMax.y) and
@@ -792,6 +796,209 @@ WM("wGeometry", function(import, export, exportDefault)
   
   
   
+  
+  -- Bounding Box ====================
+  -- Axis-aligned bounding box (AABB)
+  Box = {
+    -- Vector3 min
+    -- Vector3 max
+  
+    -- Creates a new box
+    -- @param minVector Vector3 (optional)
+    -- @param maxVector Vector3 (optional)
+    new = function(self, minVector, maxVector)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.min = minVector or Vector3:new()
+      o.max = maxVector or Vector3:new()
+      
+      return o
+    end,
+    
+    -- Creates a new box from a sphere
+    -- @param sphere Sphere
+    newFromSphere = function(self, sphere)
+      local corner = Vector3:new(sphere.radius, sphere.radius, sphere.radius)
+      return Box:new(
+        sphere.center - corner,
+        sphere.center + corner
+      )
+    end,
+    
+    -- Checks if the box contains a Vector3
+    -- @param v Vector3
+    containsVector = function(self, v)
+      return     self.min.x <= v.x and self.max.x >= v.x
+             and self.min.y <= v.y and self.max.y >= v.y
+             and self.min.z <= v.z and self.max.z >= v.z
+    end,
+    
+    -- Checks if the box contains a Box
+    -- @param that Box
+    containsBox = function(self, that)
+      return     self.min.x <= that.min.x and self.max.x >= that.max.x
+             and self.min.y <= that.min.y and self.max.y >= that.max.y
+             and self.min.z <= that.min.z and self.max.z >= that.max.z
+    end,
+    
+    -- Checks if the box contains a Sphere
+    -- @param sphere Sphere
+    containsSphere = function(self, sphere)
+      return  sphere.center.x - self.min.x >= sphere.radius
+          and sphere.center.y - self.min.y >= sphere.radius
+          and sphere.center.z - self.min.z >= sphere.radius
+          and self.max.x - sphere.center.x >= sphere.radius
+          and self.max.y - sphere.center.y >= sphere.radius
+          and self.max.z - sphere.center.z >= sphere.radius
+    end,
+    
+    -- Checks if the box intersects a Box
+    -- @param that Box
+    -- @return boolean
+    intersectsBox = function(self, that)
+      if((self.max.x >= box.min.x) and (self.min.x <= box.max.x)) then
+          if((self.max.y < box.min.y) or (self.min.y > box.max.y)) then
+              return false
+          end
+          return (self.max.z >= box.min.z) and (self.min.z <= box.max.z)
+      end
+      return false
+    end,
+    
+    -- Checks if the box intersects a Sphere
+    -- @param sphere Sphere
+    -- @return boolean
+    intersectsSphere = function(self, sphere)
+      if (sphere.center.x - self.min.x > sphere.radius
+          and sphere.center.y - self.min.y > sphere.radius
+          and sphere.center.z - self.min.z > sphere.radius
+          and self.max.x - sphere.center.x > sphere.radius
+          and self.max.y - sphere.center.y > sphere.radius
+          and self.max.z - sphere.center.z > sphere.radius) then
+        return true
+      end
+
+      local dmin = 0.
+
+      if(sphere.center.x - self.min.x <= sphere.radius) then
+        dmin = dmin + (sphere.center.x - self.min.x) * (sphere.center.x - self.min.x)
+      elseif(self.max.x - sphere.center.x <= sphere.radius) then
+        dmin = dmin + (sphere.center.x - self.max.x) * (sphere.center.x - self.max.x)
+      end
+
+      if(sphere.center.y - self.min.y <= sphere.radius) then
+        dmin = dmin + (sphere.center.y - self.min.y) * (sphere.center.y - self.min.y)
+      elseif(self.max.y - sphere.center.y <= sphere.radius) then
+        dmin = dmin + (sphere.center.y - self.max.y) * (sphere.center.y - self.max.y)
+      end
+
+      if(sphere.center.z - self.min.z <= sphere.radius) then
+        dmin = dmin + (sphere.center.z - self.min.z) * (sphere.center.z - self.min.z)
+      elseif(self.max.z - sphere.center.z <= sphere.radius) then
+        dmin = dmin + (sphere.center.z - self.max.z) * (sphere.center.z - self.max.z)
+      end
+
+      return (dmin <= sphere.radius * sphere.radius)
+    end,
+    
+    -- @return table[] corners indexed array (8 elements)
+    getCorners = function(self)
+      return {
+        Vector3:new(self.min.x, self.max.y, self.max.z), 
+        Vector3:new(self.max.x, self.max.y, self.max.z),
+        Vector3:new(self.max.x, self.min.y, self.max.z), 
+        Vector3:new(self.min.x, self.min.y, self.max.z), 
+        Vector3:new(self.min.x, self.max.y, self.min.z),
+        Vector3:new(self.max.x, self.max.y, self.min.z),
+        Vector3:new(self.max.x, self.min.y, self.min.z),
+        Vector3:new(self.min.x, self.min.y, self.min.z)
+      }
+    end,
+    
+    -- @return number box volume
+    getVolume = function(self)
+      return (self.max.x - self.min.x) * (self.max.y - self.min.y) * (self.max.z - self.min.z)
+    end,
+    
+    -- Merges two boxes into one by their min/max sides
+    -- @param that Box
+    __add = function(self, that)
+      return Box:new(
+        Vector3:new(
+          math.min(self.min.x, that.min.x),
+          math.min(self.min.y, that.min.y),
+          math.min(self.min.z, that.min.z)
+        ),
+        Vector3:new(
+          math.min(self.max.x, that.max.x),
+          math.min(self.max.y, that.max.y),
+          math.min(self.max.z, that.max.z)
+        )
+      )
+    end,
+    
+    __eq = function(self, that)
+      return self.min == that.min and self.max == that.max
+    end,
+    
+    -- Compares volumes
+    __lt = function(self, that)
+      return self.getVolume() < that.getVolume()
+    end,
+    
+    -- Compares volumes
+    __le = function(self, that)
+      return self.getVolume() <= that.getVolume()
+    end,
+    
+    __tostring = function(self)
+      return "{\n  " .. tostring(self.min) .. ",\n  " .. tostring(self.max) .. "\n}"
+    end,
+  }
+  Box.__index = Box
+  
+  
+  -- Bounding sphere ====================
+  Sphere = {
+    -- Vector3 center
+    -- number radius
+  
+    new = function(self, center, radius)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.center = center or Vector3:new()
+      o.radius = radius or 0.
+    
+      return o
+    end,
+    
+    -- @return number sphere volume
+    getVolume = function(self)
+      return 4 / 3 * math.pi * self.radius * self.radius * self.radius
+    end,
+    
+    __eq = function(self, that)
+      return self.center == that.center and self.radius == that.radius
+    end,
+    
+    __lt = function(self, that)
+      return self.radius < that.radius
+    end,
+    
+    __le = function(self, that)
+      return self.radius <= that.radius
+    end,
+    
+    __tostring = function(self)
+      return "{\n  " .. tostring(self.min) .. ",\n  " .. tostring(self.radius) .. "\n}"
+    end,
+  }
+  Sphere.__index = Sphere
+  
+  
+  
   -- Camera ====================
   -- Game camera projection state with eye and target
   -- @see https://knowledge.autodesk.com/support/3ds-max/learn-explore/caas/CloudHelp/cloudhelp/2017/ENU/3DSMax/files/GUID-B1F4F126-65AC-4CB6-BDC3-02799A0BAEF3-htm.html
@@ -915,11 +1122,15 @@ WM("wGeometry", function(import, export, exportDefault)
   }
   Camera.__index = Camera
   
+  
+  
   local wGeometry = {
     Functions = Functions,
     Vector3 = Vector3,
     Matrix3 = Matrix3,
     Matrix4 = Matrix4,
+    Box = Box,
+    Spehere = Sphere,
     matrix4perspective1 = matrix4perspective1,
     matrix4Perspective2 = matrix4Perspective2,
     matrix4Look = matrix4Look,
