@@ -2,6 +2,7 @@ if(_G["WM"] == nil) then WM = (function(m,h) h(nil,(function() end), (function(e
 
 -- Warcraft 3 Geometry module by ScorpioT1000 / 2020
 -- Thanks to DGUI by Ashujon / 2009
+-- Thankes to The Mono.Xna Team / 2006
 WM("wGeometry", function(import, export, exportDefault) 
   local Functions = nil
   local Vector3 = nil
@@ -10,6 +11,7 @@ WM("wGeometry", function(import, export, exportDefault)
   local Camera = nil
   local Box = nil
   local Sphere = nil
+  local Ray = nil
   local zTesterLocation = Location(0,0)
   
   local getTerrainZ = function(x,y)
@@ -113,8 +115,8 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- Copy vector from another
-    copyFrom = function(self, that)
+    -- Create a vector from another
+    clone = function(self, that)
       local o = {}
       setmetatable(o,self)
       o.x = that.x
@@ -122,6 +124,9 @@ WM("wGeometry", function(import, export, exportDefault)
       o.z = that.z
       return o
     end,
+    
+    -- @deprecated use :clone()
+    copyFrom = function(self,that) return Vector3:clone(that) end,
     
     -- Copy vector from Unit X/Y/Z
     -- @param u Unit
@@ -283,6 +288,14 @@ WM("wGeometry", function(import, export, exportDefault)
       )
     end,
     
+    -- Vector3 + Distance offset
+    -- @param distance number in game units
+    -- @param direction Vector3 normalized direction
+    -- @return Vector3
+    offset = function(self, distance, direction)
+      return self + direction:scale(distance)
+    end,
+    
     -- Spheric coordinates offset
     -- @param distance number in game units
     -- @param yaw number (angle in radians)
@@ -429,9 +442,9 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- Copy matrix from another
+    -- Create a matrix from another
     -- @return Matrix3
-    copyFrom = function(self, that)
+    clone = function(self, that)
       local o = {}
       setmetatable(o,self)
       o.m11 = that.m11
@@ -445,6 +458,9 @@ WM("wGeometry", function(import, export, exportDefault)
       o.m33 = that.m33
       return o
     end,
+    
+    -- @deprecated use :clone()
+    copyFrom = function(self,that) return Matrix3:clone(that) end,
     
     -- Create a new identity matrix
     -- @return Matrix3
@@ -643,10 +659,10 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- Copy matrix from another 4x4 matrix
+    -- Create a matrix from another 4x4 matrix
     -- @param Matrix4 that
     -- @return Matrix4
-    copyFrom = function(self, that)
+    clone = function(self, that)
       local o = {}
       setmetatable(o,self)
       o.m11 = that.m11
@@ -667,6 +683,9 @@ WM("wGeometry", function(import, export, exportDefault)
       o.m44 = that.m44
       return o
     end,
+    
+    -- @deprecated use :clone()
+    copyFrom = function(self,that) return Matrix4:clone(that) end,
     
     -- Creates a 4x4 matrix from 3x3 matrix
     -- @param Matrix3 that
@@ -762,41 +781,6 @@ WM("wGeometry", function(import, export, exportDefault)
   
   
   
-  -- Projections ====================
-  -- Screen aspect ratio
-  local screenWidth = 0.544
-  local screenHeight = 0.302
-  local radToDeg = 180.0 / math.pi
-  local degToRad = math.pi / 180.0
-  
-  -- Builds a perspective projection matrix based on a field of view.
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
-  local matrix4perspective1 = function(fovy, Aspect, zn, zf)
-    return Matrix4:new(2*zn/fovy,0,0,0,0,2*zn/Aspect,0,0,0,0,zf/(zf-zn),1,0,0,zn*zf/(zn-zf),0)
-  end
-  
-  -- Builds a customized perspective projection matrix
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
-  local matrix4Perspective2 = function(n, f, r, l, t, b)
-    return Matrix4:new(2*n/(r-l), 0, (r+l)/(r-l), 0, 0, 2*n/(t-b), (t+b)/(t-b), 0, 0, 0, -(f+n)/(f-n), -2*f*n/(f-n), 0, 0, -1, 0)
-  end
-  
-  -- Builds a look-at matrix
-  -- @param PosCamera Vector3 
-  -- @param AxisX Vector3
-  -- @param AxisY Vector3
-  -- @param AxisZ Vector3
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
-  local matrix4Look = function(PosCamera, AxisX, AxisY, AxisZ)
-    return Matrix4:new(AxisX.x,AxisY.x,AxisZ.x,0,AxisX.y,AxisY.y,AxisZ.y,0,AxisX.z,AxisY.z,AxisZ.z,0,-AxisX:dotProduct(PosCamera),-AxisY:dotProduct(PosCamera),-AxisZ:dotProduct(PosCamera),1)
-  end
-  
-  
-  
-  
   -- Bounding Box ====================
   -- Axis-aligned bounding box (AABB)
   Box = {
@@ -816,14 +800,29 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
+    -- Creates a new box from another box
+    -- @param that Box
+    clone = function(self, that)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.min = Vector3:clone(that.min)
+      o.max = Vector3:clone(that.max)
+      
+      return o
+    end,
+    
     -- Creates a new box from a sphere
     -- @param sphere Sphere
     newFromSphere = function(self, sphere)
+      local o = {}
+      setmetatable(o,self)
       local corner = Vector3:new(sphere.radius, sphere.radius, sphere.radius)
-      return Box:new(
-        sphere.center - corner,
-        sphere.center + corner
-      )
+      
+      o.min = sphere.center - corner
+      o.max = sphere.center + corner
+      
+      return o
     end,
     
     -- Checks if the box contains a Vector3
@@ -916,6 +915,30 @@ WM("wGeometry", function(import, export, exportDefault)
       }
     end,
     
+    -- Converts the box to a vertex grid
+    -- @param edgeCount number divides planes into this number of edges
+    -- @return table Vector3 vertex array
+    toGrid = function(self, edgeCount)
+      local grid = {}
+      local length3d = self.max - self.min
+      local vertexCount = edgeCount + 1 -- add extreme edges
+      local chunkDistance3d = length3d / vertexCount
+      local i = 1
+      for ix = 0, vertexCount do
+        for iy = 0, vertexCount do
+          for iz = 0, vertexCount do
+            grid[i] = Vector3:new(
+              self.min.x + chunkDistance3d.x * ix,
+              self.min.y + chunkDistance3d.y * iy,
+              self.min.z + chunkDistance3d.z * iz
+            )
+            i = i + 1
+          end
+        end
+      end
+      return grid
+    end,
+    
     -- @return number box volume
     getVolume = function(self)
       return (self.max.x - self.min.x) * (self.max.y - self.min.y) * (self.max.z - self.min.z)
@@ -944,12 +967,12 @@ WM("wGeometry", function(import, export, exportDefault)
     
     -- Compares volumes
     __lt = function(self, that)
-      return self.getVolume() < that.getVolume()
+      return self:getVolume() < that:getVolume()
     end,
     
     -- Compares volumes
     __le = function(self, that)
-      return self.getVolume() <= that.getVolume()
+      return self:getVolume() <= that:getVolume()
     end,
     
     __tostring = function(self)
@@ -957,6 +980,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
   }
   Box.__index = Box
+  
+  
   
   
   -- Bounding sphere ====================
@@ -974,9 +999,138 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
+    -- Creates a new sphere from another sphere
+    -- @param that Sphere
+    clone = function(self, that)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.center = Vector3:clone(that.center)
+      o.radius = that.radius
+      
+      return o
+    end,
+    
+    -- Creates a new sphere from a box
+    -- @param box Box
+    newFromBox = function(self, box)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.center = Vector3:new((box.min.X + box.max.X) / 2.,
+                             (box.min.Y + box.max.Y) / 2.,
+                             (box.min.Z + box.max.Z) / 2.)
+      o.radius = o.center:distance(box.max)
+    
+      return o
+    end,
+    
     -- @return number sphere volume
     getVolume = function(self)
       return 4 / 3 * math.pi * self.radius * self.radius * self.radius
+    end,
+    
+    -- Checks if the sphere contains a Vector3
+    -- @param v Vector3
+    containsVector = function(self, v)
+      return v:distance(self.center) <= self.radius
+    end,
+    
+    -- Checks if the sphere contains a Box
+    -- @param box Box
+    containsBox = function(self, box)
+      local corners = box:getCorners()
+      for i = 1, #corners do
+        if(not self:containsVector(corners[i])) then
+          return false
+        end
+      end
+      return true
+    end,
+    
+    -- Checks if the sphere contains a Sphere
+    -- @param that Sphere
+    containsSphere = function(self, that)
+      return self.center:distance(that.center) <= (self.radius - that.radius)
+    end,
+    
+    -- Checks if the sphere intersects a Box
+    -- @param box Box
+    -- @return boolean
+    intersectsBox = function(self, box)
+      return box.intersectsSphere(self)
+    end,
+    
+    -- Checks if the sphere intersects a Sphere
+    -- @param that Sphere
+    -- @return boolean
+    intersectsSphere = function(self, that)
+			return that.center:distance(self.center) <= that.radius + self.radius
+    end,
+    
+    -- Converts the sphere to a vertex grid (UV sphere)
+    -- @param resolution number of latitude lines (vertices on the y axis)
+    -- @return table Vector3 vertex array
+    toGrid = function(self, resolution)
+      local vSize = 4 * resolution
+      local uSize = vSize * 2
+      local grid = {}
+      
+      local i = 1
+      local v = 0
+      local u = 0
+      local theta = 0.
+      local phi = 0.
+      
+      while v < vSize do
+        u = 0
+        while u < uSize do
+          theta = 2. * math.pi * u/uSize + math.pi
+					phi = math.pi * v/vSize
+
+          local v = Vector3:new(
+            math.cos(theta) * math.sin(phi) * self.radius,
+            -math.cos(phi) * self.radius,
+            math.sin(theta) * math.sin(phi) * self.radius
+          )
+          if(v ~= grid[i-1]) then
+            grid[i] = v
+            i = i + 1
+          end
+          
+          u = u + 1
+        end
+        v = v + 1
+      end
+      
+      return grid
+    end,
+    
+    -- Merges two spheres into one 
+    -- @param that Sphere
+    __add = function(self, that)
+      local centerDelta = that.center - self.center
+      local centerDistance = centerDelta:length()
+      
+      if(centerDistance <= self.radius + that.radius) then -- intersect
+        if (centerDistance <= self.radius - that.radius) then
+          return Sphere:clone(self) -- self contains that
+        end
+        if (centerDistance <= that.radius - self.radius) then
+          return Sphere:clone(that) -- that contains self
+        end
+      end
+
+      -- else find center of new sphere and radius
+      local leftRadius = math.max(self.radius - centerDistance, that.radius)
+      local rightRadius = math.max(self.radius + centerDistance, that.radius)
+      local scale = (leftRadius - rightRadius) / (2. * distance)
+      centerDelta = centerDelta + centerDelta:scale(scale)
+      
+      return Sphere:new(
+        self.center + centerDelta,
+        (leftRadius + rightRadius) / 2.
+      )
     end,
     
     __eq = function(self, that)
@@ -999,13 +1153,222 @@ WM("wGeometry", function(import, export, exportDefault)
   
   
   
+  
+  -- Ray ====================
+  Ray = {
+    -- Vector3 position
+    -- Vector3 direction
+  
+    new = function(self, position, direction)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.position = position or Vector3:new()
+      o.direction = direction or Vector3:new()
+    
+      return o
+    end,
+    
+    -- Creates a new ray from another ray
+    -- @param that Ray
+    clone = function(self, that)
+      local o = {}
+      setmetatable(o,self)
+      
+      o.position = Vector3:clone(that.position)
+      o.direction = Vector3:clone(that.direction)
+      
+      return o
+    end,
+        
+    -- Checks if the ray intersects a Box
+    -- @param box Box
+    -- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
+    --                    Otherwise it returns nil (no intersection)
+    intersectsBox = function(self, box)
+      -- first test if start in box
+      if (self.position.x >= box.min.x
+        and self.position.x <= box.max.x
+        and self.position.y >= box.min.y
+        and self.position.y <= box.max.y
+        and self.position.z >= box.min.z
+        and self.position.z <= box.max.z) then
+        return 0. -- here we concidere cube is full and origine is in cube so intersect at origine
+      end
+
+        -- Second we check each face
+        local maxT = Vector3:new(-1., -1., -1.)
+        -- calcul intersection with each faces
+        if (self.position.x < box.min.x and self.direction.x ~= 0.) then
+          maxT.x = (box.min.x - self.position.x) / self.direction.x
+        elseif(self.position.x > box.max.x and self.direction.x ~= 0.) then
+          maxT.x = (box.max.x - self.position.x) / self.direction.x
+        end
+        if(self.position.y < box.min.y and self.direction.y ~= 0.) then
+          maxT.y = (box.min.y - self.position.y) / self.direction.y
+        elseif(self.position.y > box.max.y and self.direction.y ~= 0.) then
+          maxT.y = (box.max.y - self.position.y) / self.direction.y
+        end
+        if(self.position.z < box.min.z and self.direction.z ~= 0.) then
+          maxT.z = (box.min.z - self.position.z) / self.direction.z
+        elseif(self.position.z > box.max.z and self.direction.z ~= 0.) then
+          maxT.z = (box.max.z - self.position.z) / self.direction.z
+        end
+
+        -- get the maximum maxT
+        if (maxT.x > maxT.y and maxT.x > maxT.z) then
+          if(maxT.x < 0.) then
+            return nil -- ray go on opposite of face
+          end
+          -- coordonate of hit point of face of cube
+          local coord = self.position.z + maxT.x * self.direction.z
+          -- if hit point coord ( intersect face with ray) is out of other plane coord it miss 
+          if(coord < box.min.z or coord > box.max.z) then
+            return nil
+          end
+          coord = self.position.y + maxT.x * self.direction.y
+          if(coord < box.min.y or coord > box.max.y) then
+            return nil
+          end
+          return maxT.x
+        end
+        if(maxT.y > maxT.x and maxT.y > maxT.z) then
+          if (maxT.y < 0.) then
+            return nil -- ray go on opposite of face
+          end
+          -- coordonate of hit point of face of cube
+          local coord = self.position.z + maxT.y * self.direction.z
+          -- if hit point coord ( intersect face with ray) is out of other plane coord it miss 
+          if(coord < box.min.z or coord > box.max.z) then
+            return nil
+          end
+          coord = self.position.x + maxT.y * self.direction.x
+          if(coord < box.min.x or coord > box.max.x) then
+            return nil
+          end
+          return maxT.y
+        else -- Z
+          if(maxT.z < 0.) then
+            return nil -- ray go on opposite of face
+          end
+          -- coordonate of hit point of face of cube
+          local coord = self.position.x + maxT.z * self.direction.x
+          -- if hit point coord ( intersect face with ray) is out of other plane coord it miss 
+          if(coord < box.min.x or coord > box.max.x) then
+            return nil
+          end
+          coord = self.position.y + maxT.z * self.direction.y
+          if(coord < box.min.y or coord > box.max.y) then
+            return nil
+          end
+          return maxT.z
+        end
+    end,
+    
+    -- Checks if the ray intersects a Sphere
+    -- @param sphere Sphere
+    -- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
+    --                    Otherwise it returns nil (no intersection)
+    intersectsSphere = function(self, sphere)
+      -- Find the vector between where the ray starts the the sphere's centre
+      local difference = sphere.center - self.position
+      local differenceLengthSquared = difference:lengthSquared()
+      local sphereRadiusSquared = sphere.radius * sphere.radius
+
+      -- If the distance between the ray start and the sphere's centre is less than
+      -- the radius of the sphere, it means we've intersected. N.B. checking the LengthSquared is faster.
+      if(differenceLengthSquared < sphereRadiusSquared) then
+        return 0.
+      end
+
+      local distanceAlongRay = self.direction:dotProduct(difference)
+
+      -- If the ray is pointing away from the sphere then we don't ever intersect
+      if(distanceAlongRay < 0.) then
+        return nil
+      end
+
+      -- Next we kinda use Pythagoras to check if we are within the bounds of the sphere
+      -- if x = radius of sphere
+      -- if y = distance between ray position and sphere centre
+      -- if z = the distance we've travelled along the ray
+      -- if x^2 + z^2 - y^2 < 0, we do not intersect
+      local dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
+
+      if(dist < 0.) then
+        return nil
+      end
+      return distanceAlongRay - math.sqrt(dist);
+    end,
+    
+    -- Converts ray to a vertex line
+    -- @param length number line limit
+    -- @param vertexCount number number of additional vertices in a line
+    -- @return table Vector3 vertex array 
+    toGrid = function(self, length, vertexCount)
+      local grid = {}
+      local chunkDistance = length / vertexCount
+      for i = 0, vertexCount do
+        grid[i+1] = self.position:offset(chunkDistance * i, self.direction)
+      end
+      return grid
+    end,
+    
+    __eq = function(self, that)
+      return self.position == that.position and self.direction == that.direction
+    end,
+    
+    __tostring = function(self)
+      return "{\n  " .. tostring(self.position) .. ",\n  " .. tostring(self.direction) .. "\n}"
+    end,
+  }
+  Ray.__index = Ray
+  
+  
+  
+  
+  -- Projections ====================
+  -- Screen aspect ratio
+  local screenWidth = 0.544
+  local screenHeight = 0.302
+  local radToDeg = 180.0 / math.pi
+  local degToRad = math.pi / 180.0
+  
+  -- Builds a perspective projection matrix based on a field of view.
+  -- @return Matrix4
+  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
+  local matrix4perspective1 = function(fovy, Aspect, zn, zf)
+    return Matrix4:new(2*zn/fovy,0,0,0,0,2*zn/Aspect,0,0,0,0,zf/(zf-zn),1,0,0,zn*zf/(zn-zf),0)
+  end
+  
+  -- Builds a customized perspective projection matrix
+  -- @return Matrix4
+  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
+  local matrix4Perspective2 = function(n, f, r, l, t, b)
+    return Matrix4:new(2*n/(r-l), 0, (r+l)/(r-l), 0, 0, 2*n/(t-b), (t+b)/(t-b), 0, 0, 0, -(f+n)/(f-n), -2*f*n/(f-n), 0, 0, -1, 0)
+  end
+  
+  -- Builds a look-at matrix
+  -- @param PosCamera Vector3 
+  -- @param AxisX Vector3
+  -- @param AxisY Vector3
+  -- @param AxisZ Vector3
+  -- @return Matrix4
+  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
+  local matrix4Look = function(PosCamera, AxisX, AxisY, AxisZ)
+    return Matrix4:new(AxisX.x,AxisY.x,AxisZ.x,0,AxisX.y,AxisY.y,AxisZ.y,0,AxisX.z,AxisY.z,AxisZ.z,0,-AxisX:dotProduct(PosCamera),-AxisY:dotProduct(PosCamera),-AxisZ:dotProduct(PosCamera),1)
+  end
+  
+  
+  
+  
   -- Camera ====================
   -- Game camera projection state with eye and target
   -- @see https://knowledge.autodesk.com/support/3ds-max/learn-explore/caas/CloudHelp/cloudhelp/2017/ENU/3DSMax/files/GUID-B1F4F126-65AC-4CB6-BDC3-02799A0BAEF3-htm.html
   Camera = {
     
     -- Creates a new camera
-    -- @param initialZ initial z-offset (optional), can be retrieved from GetCameraTargetPositionZ()
+    -- @param initialZ number initial z-offset (optional), can be retrieved from GetCameraTargetPositionZ()
     new = function(self, initialZ)
       local o = {}
       setmetatable(o,self)
@@ -1024,6 +1387,28 @@ WM("wGeometry", function(import, export, exportDefault)
       o.projection = matrix4Perspective2(0.5, 10000, -screenWidth/2, screenWidth/2, -screenHeight/2, screenHeight/2)
       o:_updateDistanceYawPitch()
       o:_updateAxisMatrix()
+      
+      return o
+    end,
+    
+    -- Creates a new camera from another
+    -- @param that Camera
+    clone = function(self, that)
+      local o = {}
+      setmetatable(o,self)      
+      o.changed = that.changed
+      o.initialZ = that.initialZ
+      o.eye = Vector3:clone(that.eye)
+      o.target = Vector3:clone(that.target)
+      o.distance = that.distance
+      o.yaw = that.yaw
+      o.pitch = that.pitch
+      o.roll = that.roll
+      o.axisX = Vector3:clone(that.axisX)
+      o.axisY = Vector3:clone(that.axisY)
+      o.axisZ = Vector3:clone(that.axisZ)
+      o.view = Matrix4:clone(that.view)
+      o.projection = Matrix4:clone(that.projection)
       
       return o
     end,
@@ -1130,7 +1515,8 @@ WM("wGeometry", function(import, export, exportDefault)
     Matrix3 = Matrix3,
     Matrix4 = Matrix4,
     Box = Box,
-    Spehere = Sphere,
+    Sphere = Sphere,
+    Ray = Ray,
     matrix4perspective1 = matrix4perspective1,
     matrix4Perspective2 = matrix4Perspective2,
     matrix4Look = matrix4Look,
