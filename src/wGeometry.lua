@@ -401,6 +401,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the vector is a zero-vector {0,0,0}
+    -- @return boolean
     isZero = function(self)
       return self.x == 0 and self.y == 0 and self.z == 0
     end,
