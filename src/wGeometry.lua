@@ -420,13 +420,13 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     applyToUnit = function(self, u)
-      SetUnitX(u, self,x)
+      SetUnitX(u, self.x)
       SetUnitY(u, self.y)
       _SetUnitZ(u, self.z)
     end,
     
     addToUnit = function(self, u)
-      SetUnitX(u, GetUnitX(u) + self,x)
+      SetUnitX(u, GetUnitX(u) + self.x)
       SetUnitY(u, GetUnitY(u) + self.y)
       if(self.z ~= 0) then -- performance improvement
         _SetUnitZ(u, _GetUnitZ(u) + self.z)
