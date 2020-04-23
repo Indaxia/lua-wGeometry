@@ -14,6 +14,9 @@ WM("wGeometry", function(import, export, exportDefault)
   local Ray = nil
   local zTesterLocation = Location(0,0)
   
+  local radToDeg = 180.0 / math.pi
+  local degToRad = math.pi / 180.0
+  
   local getTerrainZ = function(x,y)
     MoveLocation(zTesterLocation, x, y)
     return GetLocationZ(zTesterLocation)
@@ -315,6 +318,18 @@ WM("wGeometry", function(import, export, exportDefault)
       )
     end,
     
+    -- Spheric coordinates yaw angle
+    -- @return float angle in degrees
+    getYaw = function(self)
+      return Atan2(self.y, self.x) * radToDeg
+    end,
+    
+    -- Spheric coordinates pitch angle
+    -- @return float angle in degrees
+    getPitch = function(self)
+      return math.atan(self.z / self:length2d()) * radToDeg
+    end,
+    
     -- Transforms the vector by 3x3 matrix transformation components
     -- @param Matrix3 m
     -- @return Vector3
@@ -408,29 +423,66 @@ WM("wGeometry", function(import, export, exportDefault)
     -- Checks if the vector is a zero-vector {0,0,0}
     -- @return boolean
     isZero = function(self)
-      return self.x == 0 and self.y == 0 and self.z == 0
+      return self.x == 0. and self.y == 0. and self.z == 0.
     end,
     
+    -- Applies coords to a location
+    -- @param loc Location
+    -- @return Vector3 self
     applyToLocation = function(self, loc)
       MoveLocation(loc, self.x, self.y)
+      return self
     end,
     
+    -- Adds coords to a location
+    -- @param loc Location
+    -- @return Vector3 self
     addToLocation = function(self, loc)
       MoveLocation(loc, GetLocationX(loc) + self.x, GetLocationY(loc) + self.y)
+      return self
     end,
     
+    -- Applies coords to a unit
+    -- @param u Unit
+    -- @return Vector3 self
     applyToUnit = function(self, u)
       SetUnitX(u, self.x)
       SetUnitY(u, self.y)
       _SetUnitZ(u, self.z)
+      return self
     end,
     
+    -- Applies to unit's yaw angle as direction vector
+    -- @param u Unit
+    -- @return Vector3 self
+    applyToUnitFacing = function(self, u)
+      if(not self:isZero()) then
+        BlzSetUnitFacingEx(u, self:getYaw())
+      end
+      return self
+    end,
+    
+    -- Applies to unit's yaw angle as direction vector
+    -- @param u Unit
+    -- @param duration time in seconds
+    -- @return Vector3 self
+    applyToUnitFacingAnimated = function(self, u)
+      if(not self:isZero()) then
+        SetUnitFacing(u, self:getYaw())
+      end
+      return self
+    end,
+    
+    -- Adds coords to a unit
+    -- @param u Unit
+    -- @return Vector3 self
     addToUnit = function(self, u)
       SetUnitX(u, GetUnitX(u) + self.x)
       SetUnitY(u, GetUnitY(u) + self.y)
       if(self.z ~= 0) then -- performance improvement
         _SetUnitZ(u, _GetUnitZ(u) + self.z)
       end
+      return self
     end,
     
     __tostring = function(self)
@@ -1354,8 +1406,6 @@ WM("wGeometry", function(import, export, exportDefault)
   -- Screen aspect ratio
   local screenWidth = 0.544
   local screenHeight = 0.302
-  local radToDeg = 180.0 / math.pi
-  local degToRad = math.pi / 180.0
   
   -- Builds a perspective projection matrix based on a field of view.
   -- @return Matrix4
