@@ -14,6 +14,9 @@ wlpm install https://github.com/Indaxia/lua-wGeometry
   local Vector3 = wGeometry.Vector3
   local Matrix3 = wGeometry.Matrix3
   local Matrix4 = wGeometry.Matrix4
+  local Box = wGeometry.Box 
+  local Sphere = wGeometry.Sphere 
+  local Ray = wGeometry.Ray
   local Camera = wGeometry.Camera
   
   local a = Vector3:new(1, -1, 1.1)
@@ -35,13 +38,22 @@ wlpm install https://github.com/Indaxia/lua-wGeometry
   print(m1 * m2)
   
   
-  local m3 = a = Matrix4:new(
+  local m3 = Matrix4:new(
     0.5, 1., 0.5, 
     0.8, 0.2, 0.7, 
     0.9, 1., 0.
   )
   print(m4)
+
+  local b = Box:new(
+    Vector3:new(2,2,2),
+    Vector3:new(4,6,3)
+  )
+  print b.containsVector(a)
   
+  local s = Sphere:new(Vector3:new(2,2,2), 100)
+  local r = Ray:new(Vector3:new(2,2,2), Vector3:new(0.3,0.3,0.4))
+  print (r.intersectsSphere(s))
   
   local cam = Camera:new()
   local win = Vector3:new(0.5, 0.5, 1)
