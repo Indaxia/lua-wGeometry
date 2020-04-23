@@ -400,6 +400,11 @@ WM("wGeometry", function(import, export, exportDefault)
              (self.z >= vMin.z and self.z <= vMax.z)
     end,
     
+    -- Checks if the vector is a zero-vector {0,0,0}
+    isZero = function(self)
+      return self.x == 0 and self.y == 0 and self.z == 0
+    end,
+    
     applyToLocation = function(self, loc)
       MoveLocation(loc, self.x, self.y)
     end,
