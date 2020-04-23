@@ -219,6 +219,11 @@ WM("wGeometry", function(import, export, exportDefault)
         (self.z-that.z)*(self.z-that.z)
     end,
     
+    -- @return Vector3 with zeroed Z coord
+    to2D = function(self)
+      return Vector3:new(self.x, self.y)
+    end,
+    
     __eq = function(self, that)
       return self.x == that.x and self.y == that.y and self.z == that.z
     end,
@@ -410,10 +415,22 @@ WM("wGeometry", function(import, export, exportDefault)
       MoveLocation(loc, self.x, self.y)
     end,
     
+    addToLocation = function(self, loc)
+      MoveLocation(loc, GetLocationX(loc) + self.x, GetLocationY(loc) + self.y)
+    end,
+    
     applyToUnit = function(self, u)
       SetUnitX(u, self,x)
       SetUnitY(u, self.y)
       _SetUnitZ(u, self.z)
+    end,
+    
+    addToUnit = function(self, u)
+      SetUnitX(u, GetUnitX(u) + self,x)
+      SetUnitY(u, GetUnitY(u) + self.y)
+      if(self.z ~= 0) then -- performance improvement
+        _SetUnitZ(u, _GetUnitZ(u) + self.z)
+      end
     end,
     
     __tostring = function(self)
