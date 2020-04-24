@@ -63,3 +63,4 @@ wlpm install https://github.com/Indaxia/lua-wGeometry
 ```
 
 See the [source file](/src/wGeometry.lua) for full functions documentation.
+[See on XGM/Russian](https://xgm.guru/p/wc3/lua-wgeometry)
