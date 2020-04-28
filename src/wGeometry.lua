@@ -456,7 +456,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @param u Unit
     -- @return Vector3 self
     applyToUnitFacing = function(self, u)
-      if(not self:isZero()) then
+      if(self.x ~= 0. or self.y ~= 0.) then
         BlzSetUnitFacingEx(u, self:getYaw())
       end
       return self
@@ -467,7 +467,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @param duration time in seconds
     -- @return Vector3 self
     applyToUnitFacingAnimated = function(self, u)
-      if(not self:isZero()) then
+      if(self.x ~= 0. or self.y ~= 0.) then
         SetUnitFacing(u, self:getYaw())
       end
       return self
