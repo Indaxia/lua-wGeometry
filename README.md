@@ -1,4 +1,4 @@
-# lua-wGeometry
+# lua wGeometry
 Geometry library implemented on Lua in OOP format.
 From tasty:
 
