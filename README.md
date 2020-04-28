@@ -1,5 +1,18 @@
 # lua-wGeometry
-wGeometry - Warcraft 3 Geometry module
+Geometry library implemented on Lua in OOP format.
+From tasty:
+
+- **Functions** - auxiliary functions such as cropping and calculating different types of interpolations
+- **Vector3** - 3D vector class with overloaded math operators, support for 3D conversion from game structures and vice versa, interpolations, applications of spherical offsets, checks for being in a sphere and a box, matrix transformations and more
+- **Matrix3** - a 3x3 matrix class with many different constructors such as rotation axes and a multiplication operator
+- **Matrix4** is a 4x4 matrix class, it is the simplest one - with comparison and multiplication operators
+- **Box** - a class for working with cuboids, containing methods for obtaining volume, expansion, inclusion, intersection with other shapes, etc.
+- **Sphere** - a class for working with spheres, containing methods for obtaining volume, inclusion, intersection with other figures, etc.
+- **Ray** - a class for working with rays and getting intersection points with objects
+- **Camera** - a class for storing data about the camera and the ability to convert window coordinates and scene coordinates between themselves
+
++ **toGrid** methods for building shapes from a vertex grid
+It can work in the mode of a normal object or in the WLPM mode of a module (it is determined automatically).
 
 ### Copy code from /src and use wGeometry global
 
