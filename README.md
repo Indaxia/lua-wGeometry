@@ -14,7 +14,7 @@ From tasty:
 + **toGrid** methods for building shapes from a vertex grid
 It can work in the mode of a normal object or in the WLPM mode of a module (it is determined automatically).
 
-### Copy code from /src and use wGeometry global
+### Copy code from [/src](/src) and use wGeometry global
 
 ### *OR* use [WLPM](https://github.com/Indaxia/wc3-wlpm-module-manager) and import("wGeometry")
 ```
