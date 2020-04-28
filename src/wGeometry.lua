@@ -319,15 +319,15 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Spheric coordinates yaw angle
-    -- @return float angle in degrees
+    -- @return float angle in radians
     getYaw = function(self)
-      return Atan2(self.y, self.x) * radToDeg
+      return Atan2(self.y, self.x)
     end,
     
     -- Spheric coordinates pitch angle
-    -- @return float angle in degrees
+    -- @return float angle in radians
     getPitch = function(self)
-      return math.atan(self.z / self:length2d()) * radToDeg
+      return Atan2(self.z, self:length2d())
     end,
     
     -- Transforms the vector by 3x3 matrix transformation components
@@ -457,7 +457,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @return Vector3 self
     applyToUnitFacing = function(self, u)
       if(self.x ~= 0. or self.y ~= 0.) then
-        BlzSetUnitFacingEx(u, self:getYaw())
+        BlzSetUnitFacingEx(u, self:getYaw() * radToDeg)
       end
       return self
     end,
@@ -468,7 +468,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- @return Vector3 self
     applyToUnitFacingAnimated = function(self, u)
       if(self.x ~= 0. or self.y ~= 0.) then
-        SetUnitFacing(u, self:getYaw())
+        SetUnitFacing(u, self:getYaw() * radToDeg)
       end
       return self
     end,
@@ -1447,7 +1447,7 @@ WM("wGeometry", function(import, export, exportDefault)
       setmetatable(o,self)
       o.changed = false
       o.initialZ = initialZ or 0.
-      o.eye = Vector3:new(0.0, -922.668, o.initialZ+1367.912)
+      o.eye = Vector3:new(0.0, -922.668, o.initialZ + 1367.912)
       o.target = Vector3:new(0, 0, o.initialZ)
       o.distance = 0.
       o.yaw = 0.
@@ -1528,9 +1528,9 @@ WM("wGeometry", function(import, export, exportDefault)
     setYawPitchRoll = function(self, v, eyeLock)
       local XY = self.distance*math.cos(v.y)
       local modifier = Vector3:new(
-        XY*math.cos(v.x),
-        XY*math.sin(v.x),
-        self.distance*math.sin(v.y)
+        XY * math.cos(v.x),
+        XY * math.sin(v.x),
+        self.distance * math.sin(v.y)
       )
       self.yaw = v.x
       self.pitch = v.y
@@ -1565,8 +1565,8 @@ WM("wGeometry", function(import, export, exportDefault)
     _updateDistanceYawPitch = function(self)
       local delta = (self.target - self.eye)
       self.distance = delta:length()
-      self.yaw = Atan2(delta.y, delta.x)
-      self.pitch = Atan2(delta.z, delta:length2d())
+      self.yaw = delta:getYaw()
+      self.pitch = delta:getPitch()
     end,
     
     _updateAxisMatrix = function(self)
