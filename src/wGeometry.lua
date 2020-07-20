@@ -39,7 +39,7 @@ WM("wGeometry", function(import, export, exportDefault)
   end
   
   -- Must be called for each non-air unit before manipulating Z coordinate
-  -- @param u Unit
+  --- @param u Unit
   local unlockUnitZ = function(u)
     UnitAddAbility(u , 'Aave')
     UnitRemoveAbility(u , 'Aave')
@@ -128,11 +128,11 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- @deprecated use :clone()
+    --- @deprecated use :clone()
     copyFrom = function(self,that) return Vector3:clone(that) end,
     
     -- Copy vector from Unit X/Y/Z
-    -- @param u Unit
+    --- @param u Unit
     copyFromUnit = function(self, u)
       local o = {}
       setmetatable(o,self)
@@ -143,7 +143,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Copy vector from Location X/Y/Z
-    -- @param loc Location
+    --- @param loc Location
     copyFromLocation = function(self, loc)
       local o = {}
       setmetatable(o,self)
@@ -154,7 +154,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Copy vector from Item X/Y/Z
-    -- @param i Item
+    --- @param i Item
     copyFromItem = function(self, i)
       local o = {}
       setmetatable(o,self)
@@ -165,7 +165,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Copy vector from Destructable X/Y/Z
-    -- @param d Destructable
+    --- @param d Destructable
     copyFromDestructable = function(self, d)
       local o = {}
       setmetatable(o,self)
@@ -222,7 +222,7 @@ WM("wGeometry", function(import, export, exportDefault)
         (self.z-that.z)*(self.z-that.z)
     end,
     
-    -- @return Vector3 with zeroed Z coord
+    --- @return Vector3 with zeroed Z coord
     to2D = function(self)
       return Vector3:new(self.x, self.y)
     end,
@@ -256,7 +256,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Uses cross product (!)
-    -- @see https://en.wikipedia.org/wiki/Cross_product
+    --- @see https://en.wikipedia.org/wiki/Cross_product
     __mul = function(self, that)
       return self:crossProduct(that)
     end,
@@ -270,16 +270,16 @@ WM("wGeometry", function(import, export, exportDefault)
       )
     end,
     
-    -- @param that Vector3
-    -- @return number
-    -- @see https://en.wikipedia.org/wiki/Dot_product
+    --- @param that Vector3
+    --- @return number
+    --- @see https://en.wikipedia.org/wiki/Dot_product
     dotProduct = function(self, that)
       return self.x*that.x + self.y*that.y + self.z*that.z
     end,
     
-    -- @param that Vector3
-    -- @return Vector3
-    -- @see https://en.wikipedia.org/wiki/Cross_product
+    --- @param that Vector3
+    --- @return Vector3
+    --- @see https://en.wikipedia.org/wiki/Cross_product
     crossProduct = function(self, that)
       return Vector3:new(
         self.y * that.z - self.z * that.y,
@@ -297,19 +297,19 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Vector3 + Distance offset
-    -- @param distance number in game units
-    -- @param direction Vector3 normalized direction
-    -- @return Vector3
+    --- @param distance number in game units
+    --- @param direction Vector3 normalized direction
+    --- @return Vector3
     offset = function(self, distance, direction)
       return self + direction:scale(distance)
     end,
     
     -- Spheric coordinates offset
-    -- @param distance number in game units
-    -- @param yaw number (angle in radians)
-    -- @param pitch number (angle in radians)
-    -- @return Vector3 result point
-    -- @see https://en.wikipedia.org/wiki/Aircraft_principal_axes
+    --- @param distance number in game units
+    --- @param yaw number (angle in radians)
+    --- @param pitch number (angle in radians)
+    --- @return Vector3 result point
+    --- @see https://en.wikipedia.org/wiki/Aircraft_principal_axes
     yawPitchOffset = function(self, distance, yaw, pitch)
       return Vector3:new(
         distance * math.cos(yaw) * math.cos(pitch),
@@ -319,21 +319,21 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Spheric coordinates yaw angle
-    -- @return float angle in radians
+    --- @return float angle in radians
     getYaw = function(self)
       return Atan2(self.y, self.x)
     end,
     
     -- Spheric coordinates pitch angle
-    -- @return float angle in radians
+    --- @return float angle in radians
     getPitch = function(self)
       return Atan2(self.z, self:length2d())
     end,
     
     -- Transforms the vector by 3x3 matrix transformation components
-    -- @param Matrix3 m
-    -- @return Vector3
-    -- @see https://en.wikipedia.org/wiki/Transformation_matrix
+    --- @param Matrix3 m
+    --- @return Vector3
+    --- @see https://en.wikipedia.org/wiki/Transformation_matrix
     transform3 = function(self, m)
       return Vector3:new(
         self.x*m.m11+self.y*m.m21+self.z*m.m31,
@@ -343,9 +343,9 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Transforms the vector by 4x4 matrix transformation components
-    -- @param Matrix4 m
-    -- @return Vector3
-    -- @see https://en.wikipedia.org/wiki/Transformation_matrix
+    --- @param Matrix4 m
+    --- @return Vector3
+    --- @see https://en.wikipedia.org/wiki/Transformation_matrix
     transform4 = function(self, m)
       local w = self.x*m.m14+self.y*m.m24+self.z*m.m34+m.m44
       return Vector3:new(
@@ -356,9 +356,9 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Applies linear interpolation
-    -- @param that Vector3
-    -- @param amount current animation state, number between 0 and 1
-    -- @return Vector3 result
+    --- @param that Vector3
+    --- @param amount current animation state, number between 0 and 1
+    --- @return Vector3 result
     lerp = function(self, that, amount)
       return Vector3:new(
         Functions.lerp(self.x, that.x, amount),
@@ -368,11 +368,11 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Applies hermite spline interpolation
-    -- @param that Vector3
-    -- @param amount current animation state, number between 0 and 1  
-    -- @param tangent1 (optional) 
-    -- @param tangent2 (optional)
-    -- @return Vector3 result
+    --- @param that Vector3
+    --- @param amount current animation state, number between 0 and 1  
+    --- @param tangent1 (optional) 
+    --- @param tangent2 (optional)
+    --- @return Vector3 result
     hermite = function(self, that, amount, tangent1, tangent2)
       if(tangent1 == nil) then
         tangent1 = 0.
@@ -388,10 +388,10 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Applies bezier spline interpolation
-    -- @param p2 Vector3 point 2
-    -- @param p3 Vector3 point 3
-    -- @param amount current animation state, number between 0 and 1
-    -- @return Vector3 result
+    --- @param p2 Vector3 point 2
+    --- @param p3 Vector3 point 3
+    --- @param amount current animation state, number between 0 and 1
+    --- @return Vector3 result
     bezier = function(self, p2, p3, amount)
       return Vector3:new(
         Functions.bezier(self.x, p2.x, p3.x, amount),
@@ -401,19 +401,19 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the point is in a sphere
-    -- @param c Vector3 sphere center
-    -- @param r number sphere radius
-    -- @return boolean
-    -- @deprecated use Sphere:containsVector()
+    --- @param c Vector3 sphere center
+    --- @param r number sphere radius
+    --- @return boolean
+    --- @deprecated use Sphere:containsVector()
     isInSphere = function(self, c, r)
       return self:distanceSquared(c) < (r*r)
     end,
     
     -- Checks if the point is inside axis-aligned bounding box (AABB)
-    -- @param vMin
-    -- @param vMax
-    -- @return boolean
-    -- @deprecated use Box:containsVector()
+    --- @param vMin
+    --- @param vMax
+    --- @return boolean
+    --- @deprecated use Box:containsVector()
     isInAABB = function(self, vMin, vMax)
       return (self.x >= vMin.x and self.x <= vMax.x) and
              (self.y >= vMin.y and self.y <= vMax.y) and
@@ -421,30 +421,30 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the vector is a zero-vector {0,0,0}
-    -- @return boolean
+    --- @return boolean
     isZero = function(self)
       return self.x == 0. and self.y == 0. and self.z == 0.
     end,
     
     -- Applies coords to a location
-    -- @param loc Location
-    -- @return Vector3 self
+    --- @param loc Location
+    --- @return Vector3 self
     applyToLocation = function(self, loc)
       MoveLocation(loc, self.x, self.y)
       return self
     end,
     
     -- Adds coords to a location
-    -- @param loc Location
-    -- @return Vector3 self
+    --- @param loc Location
+    --- @return Vector3 self
     addToLocation = function(self, loc)
       MoveLocation(loc, GetLocationX(loc) + self.x, GetLocationY(loc) + self.y)
       return self
     end,
     
     -- Applies coords to a unit
-    -- @param u Unit
-    -- @return Vector3 self
+    --- @param u Unit
+    --- @return Vector3 self
     applyToUnit = function(self, u)
       SetUnitX(u, self.x)
       SetUnitY(u, self.y)
@@ -453,8 +453,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Applies to unit's yaw angle as direction vector
-    -- @param u Unit
-    -- @return Vector3 self
+    --- @param u Unit
+    --- @return Vector3 self
     applyToUnitFacing = function(self, u)
       if(self.x ~= 0. or self.y ~= 0.) then
         BlzSetUnitFacingEx(u, self:getYaw() * radToDeg)
@@ -463,9 +463,9 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Applies to unit's yaw angle as direction vector
-    -- @param u Unit
-    -- @param duration time in seconds
-    -- @return Vector3 self
+    --- @param u Unit
+    --- @param duration time in seconds
+    --- @return Vector3 self
     applyToUnitFacingAnimated = function(self, u)
       if(self.x ~= 0. or self.y ~= 0.) then
         SetUnitFacing(u, self:getYaw() * radToDeg)
@@ -474,8 +474,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Adds coords to a unit
-    -- @param u Unit
-    -- @return Vector3 self
+    --- @param u Unit
+    --- @return Vector3 self
     addToUnit = function(self, u)
       SetUnitX(u, GetUnitX(u) + self.x)
       SetUnitY(u, GetUnitY(u) + self.y)
@@ -501,7 +501,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- m31, m32, m33
     
     -- Create a new matrix from coords. Skip coords to create a zero matrix
-    -- @return Matrix3
+    --- @return Matrix3
     new = function(self, m11, m12, m13, m21, m22, m23, m31, m32, m33)
       local o = {}
       setmetatable(o,self)
@@ -518,7 +518,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a matrix from another
-    -- @return Matrix3
+    --- @return Matrix3
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -534,11 +534,11 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- @deprecated use :clone()
+    --- @deprecated use :clone()
     copyFrom = function(self,that) return Matrix3:clone(that) end,
     
     -- Create a new identity matrix
-    -- @return Matrix3
+    --- @return Matrix3
     newIdentity = function(self)
       local o = {}
       setmetatable(o,self)
@@ -555,7 +555,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new scaling matrix
-    -- @return Matrix3
+    --- @return Matrix3
     newScaling = function(self, scaleX, scaleY, scaleZ)
       local o = {}
       setmetatable(o,self)
@@ -572,8 +572,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new scaling matrix
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Scaling_(geometry)
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Scaling_(geometry)
     newScaling = function(self, scaleX, scaleY, scaleZ)
       return Matrix3:new(
         scaleX or 1., 0., 0.,
@@ -583,8 +583,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new rotation X matrix from the angle (in radians)
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Rotation_matrix
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Rotation_matrix
     newRotationX = function(self, a)
       return Matrix3:new(
         1., 0., 0.,
@@ -594,8 +594,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new rotation Y matrix from the angle (in radians)
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Rotation_matrix
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Rotation_matrix
     newRotationY = function(self, a)
       return Matrix3:new(
         math.cos(a), 0., math.sin(a),
@@ -605,8 +605,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new rotation Z matrix from the angle (in radians)
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Rotation_matrix
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Rotation_matrix
     newRotationZ = function(self, a)
       return Matrix3:new(
         math.cos(a), -math.sin(a), 0.,
@@ -616,10 +616,10 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new axis rotation matrix from the vector and angle (in radians)
-    -- @param v Vector3
-    -- @param a number
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation
+    --- @param v Vector3
+    --- @param a number
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Axis%E2%80%93angle_representation
     newRotationAxis = function(self, v, a)
       local cosa = math.cos(a)
       local sina = math.sin(a)
@@ -639,9 +639,9 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new rotation matrix from the yaw-pitch-roll vector
-    -- @param v Vector3 where x = yaw, y = pitch, z = roll
-    -- @return Matrix3
-    -- @see https://en.wikipedia.org/wiki/Aircraft_principal_axes
+    --- @param v Vector3 where x = yaw, y = pitch, z = roll
+    --- @return Matrix3
+    --- @see https://en.wikipedia.org/wiki/Aircraft_principal_axes
     newRotationYawPitchRoll = function(self, v)
       local cosa = math.cos(v.x)
       local sina = math.sin(v.x)
@@ -706,7 +706,7 @@ WM("wGeometry", function(import, export, exportDefault)
     -- m41, m42, m43, m44
     
     -- Create a new matrix from coords. Skip coords to create a zero matrix
-    -- @return Matrix4
+    --- @return Matrix4
     new = function(self, 
       m11, m12, m13, m14, 
       m21, m22, m23, m24, 
@@ -735,8 +735,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a matrix from another 4x4 matrix
-    -- @param Matrix4 that
-    -- @return Matrix4
+    --- @param Matrix4 that
+    --- @return Matrix4
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -759,12 +759,12 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- @deprecated use :clone()
+    --- @deprecated use :clone()
     copyFrom = function(self,that) return Matrix4:clone(that) end,
     
     -- Creates a 4x4 matrix from 3x3 matrix
-    -- @param Matrix3 that
-    -- @return Matrix4
+    --- @param Matrix3 that
+    --- @return Matrix4
     copyFrom3 = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -788,7 +788,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Create a new identity matrix
-    -- @return Matrix4
+    --- @return Matrix4
     newIdentity = function(self)
       local o = {}
       setmetatable(o,self)
@@ -863,8 +863,8 @@ WM("wGeometry", function(import, export, exportDefault)
     -- Vector3 max
   
     -- Creates a new box
-    -- @param minVector Vector3 (optional)
-    -- @param maxVector Vector3 (optional)
+    --- @param minVector Vector3 (optional)
+    --- @param maxVector Vector3 (optional)
     new = function(self, minVector, maxVector)
       local o = {}
       setmetatable(o,self)
@@ -876,7 +876,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new box from another box
-    -- @param that Box
+    --- @param that Box
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -888,7 +888,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new box from a sphere
-    -- @param sphere Sphere
+    --- @param sphere Sphere
     newFromSphere = function(self, sphere)
       local o = {}
       setmetatable(o,self)
@@ -901,7 +901,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the box contains a Vector3
-    -- @param v Vector3
+    --- @param v Vector3
     containsVector = function(self, v)
       return     self.min.x <= v.x and self.max.x >= v.x
              and self.min.y <= v.y and self.max.y >= v.y
@@ -909,7 +909,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the box contains a Box
-    -- @param that Box
+    --- @param that Box
     containsBox = function(self, that)
       return     self.min.x <= that.min.x and self.max.x >= that.max.x
              and self.min.y <= that.min.y and self.max.y >= that.max.y
@@ -917,7 +917,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the box contains a Sphere
-    -- @param sphere Sphere
+    --- @param sphere Sphere
     containsSphere = function(self, sphere)
       return  sphere.center.x - self.min.x >= sphere.radius
           and sphere.center.y - self.min.y >= sphere.radius
@@ -928,8 +928,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the box intersects a Box
-    -- @param that Box
-    -- @return boolean
+    --- @param that Box
+    --- @return boolean
     intersectsBox = function(self, that)
       if((self.max.x >= box.min.x) and (self.min.x <= box.max.x)) then
           if((self.max.y < box.min.y) or (self.min.y > box.max.y)) then
@@ -941,8 +941,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the box intersects a Sphere
-    -- @param sphere Sphere
-    -- @return boolean
+    --- @param sphere Sphere
+    --- @return boolean
     intersectsSphere = function(self, sphere)
       if (sphere.center.x - self.min.x > sphere.radius
           and sphere.center.y - self.min.y > sphere.radius
@@ -976,7 +976,7 @@ WM("wGeometry", function(import, export, exportDefault)
       return (dmin <= sphere.radius * sphere.radius)
     end,
     
-    -- @return table[] corners indexed array (8 elements)
+    --- @return table[] corners indexed array (8 elements)
     getCorners = function(self)
       return {
         Vector3:new(self.min.x, self.max.y, self.max.z), 
@@ -991,8 +991,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Converts the box to a vertex grid
-    -- @param edgeCount number divides planes into this number of edges
-    -- @return table Vector3 vertex array
+    --- @param edgeCount number divides planes into this number of edges
+    --- @return table Vector3 vertex array
     toGrid = function(self, edgeCount)
       local grid = {}
       local length3d = self.max - self.min
@@ -1014,13 +1014,13 @@ WM("wGeometry", function(import, export, exportDefault)
       return grid
     end,
     
-    -- @return number box volume
+    --- @return number box volume
     getVolume = function(self)
       return (self.max.x - self.min.x) * (self.max.y - self.min.y) * (self.max.z - self.min.z)
     end,
     
     -- Merges two boxes into one by their min/max sides
-    -- @param that Box
+    --- @param that Box
     __add = function(self, that)
       return Box:new(
         Vector3:new(
@@ -1075,7 +1075,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new sphere from another sphere
-    -- @param that Sphere
+    --- @param that Sphere
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -1087,7 +1087,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new sphere from a box
-    -- @param box Box
+    --- @param box Box
     newFromBox = function(self, box)
       local o = {}
       setmetatable(o,self)
@@ -1100,19 +1100,19 @@ WM("wGeometry", function(import, export, exportDefault)
       return o
     end,
     
-    -- @return number sphere volume
+    --- @return number sphere volume
     getVolume = function(self)
       return 4 / 3 * math.pi * self.radius * self.radius * self.radius
     end,
     
     -- Checks if the sphere contains a Vector3
-    -- @param v Vector3
+    --- @param v Vector3
     containsVector = function(self, v)
       return v:distance(self.center) <= self.radius
     end,
     
     -- Checks if the sphere contains a Box
-    -- @param box Box
+    --- @param box Box
     containsBox = function(self, box)
       local corners = box:getCorners()
       for i = 1, #corners do
@@ -1124,28 +1124,28 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the sphere contains a Sphere
-    -- @param that Sphere
+    --- @param that Sphere
     containsSphere = function(self, that)
       return self.center:distance(that.center) <= (self.radius - that.radius)
     end,
     
     -- Checks if the sphere intersects a Box
-    -- @param box Box
-    -- @return boolean
+    --- @param box Box
+    --- @return boolean
     intersectsBox = function(self, box)
       return box.intersectsSphere(self)
     end,
     
     -- Checks if the sphere intersects a Sphere
-    -- @param that Sphere
-    -- @return boolean
+    --- @param that Sphere
+    --- @return boolean
     intersectsSphere = function(self, that)
 			return that.center:distance(self.center) <= that.radius + self.radius
     end,
     
     -- Converts the sphere to a vertex grid (UV sphere)
-    -- @param resolution number of latitude lines (vertices on the y axis)
-    -- @return table Vector3 vertex array
+    --- @param resolution number of latitude lines (vertices on the y axis)
+    --- @return table Vector3 vertex array
     toGrid = function(self, resolution)
       local vSize = 4 * resolution
       local uSize = vSize * 2
@@ -1182,7 +1182,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Merges two spheres into one 
-    -- @param that Sphere
+    --- @param that Sphere
     __add = function(self, that)
       local centerDelta = that.center - self.center
       local centerDistance = centerDelta:length()
@@ -1245,7 +1245,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new ray from another ray
-    -- @param that Ray
+    --- @param that Ray
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)
@@ -1257,8 +1257,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
         
     -- Checks if the ray intersects a Box
-    -- @param box Box
-    -- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
+    --- @param box Box
+    --- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
     --                    Otherwise it returns nil (no intersection)
     intersectsBox = function(self, box)
       -- first test if start in box
@@ -1341,8 +1341,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Checks if the ray intersects a Sphere
-    -- @param sphere Sphere
-    -- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
+    --- @param sphere Sphere
+    --- @return number|nil If returned the number then it's the distance from .position at which it intersects the object
     --                    Otherwise it returns nil (no intersection)
     intersectsSphere = function(self, sphere)
       -- Find the vector between where the ray starts the the sphere's centre
@@ -1377,9 +1377,9 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Converts ray to a vertex line
-    -- @param length number line limit
-    -- @param vertexCount number number of additional vertices in a line
-    -- @return table Vector3 vertex array 
+    --- @param length number line limit
+    --- @param vertexCount number number of additional vertices in a line
+    --- @return table Vector3 vertex array 
     toGrid = function(self, length, vertexCount)
       local grid = {}
       local chunkDistance = length / vertexCount
@@ -1408,26 +1408,26 @@ WM("wGeometry", function(import, export, exportDefault)
   local screenHeight = 0.302
   
   -- Builds a perspective projection matrix based on a field of view.
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
+  --- @return Matrix4
+  --- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectivefovlh
   local matrix4perspective1 = function(fovy, Aspect, zn, zf)
     return Matrix4:new(2*zn/fovy,0,0,0,0,2*zn/Aspect,0,0,0,0,zf/(zf-zn),1,0,0,zn*zf/(zn-zf),0)
   end
   
   -- Builds a customized perspective projection matrix
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
+  --- @return Matrix4
+  --- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixperspectiveoffcenterlh
   local matrix4Perspective2 = function(n, f, r, l, t, b)
     return Matrix4:new(2*n/(r-l), 0, (r+l)/(r-l), 0, 0, 2*n/(t-b), (t+b)/(t-b), 0, 0, 0, -(f+n)/(f-n), -2*f*n/(f-n), 0, 0, -1, 0)
   end
   
   -- Builds a look-at matrix
-  -- @param PosCamera Vector3 
-  -- @param AxisX Vector3
-  -- @param AxisY Vector3
-  -- @param AxisZ Vector3
-  -- @return Matrix4
-  -- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
+  --- @param PosCamera Vector3 
+  --- @param AxisX Vector3
+  --- @param AxisY Vector3
+  --- @param AxisZ Vector3
+  --- @return Matrix4
+  --- @see https://docs.microsoft.com/en-us/windows/win32/direct3d9/d3dxmatrixlookatlh
   local matrix4Look = function(PosCamera, AxisX, AxisY, AxisZ)
     return Matrix4:new(AxisX.x,AxisY.x,AxisZ.x,0,AxisX.y,AxisY.y,AxisZ.y,0,AxisX.z,AxisY.z,AxisZ.z,0,-AxisX:dotProduct(PosCamera),-AxisY:dotProduct(PosCamera),-AxisZ:dotProduct(PosCamera),1)
   end
@@ -1437,11 +1437,11 @@ WM("wGeometry", function(import, export, exportDefault)
   
   -- Camera ====================
   -- Game camera projection state with eye and target
-  -- @see https://knowledge.autodesk.com/support/3ds-max/learn-explore/caas/CloudHelp/cloudhelp/2017/ENU/3DSMax/files/GUID-B1F4F126-65AC-4CB6-BDC3-02799A0BAEF3-htm.html
+  --- @see https://knowledge.autodesk.com/support/3ds-max/learn-explore/caas/CloudHelp/cloudhelp/2017/ENU/3DSMax/files/GUID-B1F4F126-65AC-4CB6-BDC3-02799A0BAEF3-htm.html
   Camera = {
     
     -- Creates a new camera
-    -- @param initialZ number initial z-offset (optional), can be retrieved from GetCameraTargetPositionZ()
+    --- @param initialZ number initial z-offset (optional), can be retrieved from GetCameraTargetPositionZ()
     new = function(self, initialZ)
       local o = {}
       setmetatable(o,self)
@@ -1465,7 +1465,7 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Creates a new camera from another
-    -- @param that Camera
+    --- @param that Camera
     clone = function(self, that)
       local o = {}
       setmetatable(o,self)      
@@ -1487,8 +1487,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Converts window coordinate to world coordinate
-    -- @param v Vector3 where x and y - window coords and z - overlay range
-    -- @return Vector3
+    --- @param v Vector3 where x and y - window coords and z - overlay range
+    --- @return Vector3
     windowToWorld = function(self, v)
       return Vector3:new(
         self.eye.x+self.axisZ.x*v.z+v.x*self.axisX.x*screenWidth*v.z+v.y*self.axisY.x*screenHeight*v.z,
@@ -1498,23 +1498,23 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- Converts world coordinate to window coordinate
-    -- @param v Vector3
-    -- @return Vector3
+    --- @param v Vector3
+    --- @return Vector3
     worldToWindow = function(self, v)
       v = v:transform4(self.view):transform4(self.projection)
       v.z = math.abs(v.z)
       return v
     end,
     
-    -- @param v Vector3
+    --- @param v Vector3
     setPosition = function(self, v)
       self.eye = self.eye + (v - self.target)
       self.target = Vector3:newFrom(v)
       self.changed = true
     end,
     
-    -- @param eye Vector3
-    -- @param target Vector3
+    --- @param eye Vector3
+    --- @param target Vector3
     setEyeAndTarget = function(self, eye, target)
       self.eye = Vector3:newFrom(eye)
       self.target = Vector3:newFrom(target)
@@ -1523,8 +1523,8 @@ WM("wGeometry", function(import, export, exportDefault)
       self.changed = true
     end,
     
-    -- @param v Vector3 where x = yaw, y = pitch, z = roll
-    -- @param eyeLock boolean - move target instead of eye
+    --- @param v Vector3 where x = yaw, y = pitch, z = roll
+    --- @param eyeLock boolean - move target instead of eye
     setYawPitchRoll = function(self, v, eyeLock)
       local XY = self.distance*math.cos(v.y)
       local modifier = Vector3:new(
@@ -1545,8 +1545,8 @@ WM("wGeometry", function(import, export, exportDefault)
     end,
     
     -- uses warcraft native functions
-    -- @param thePlayer Player
-    -- @param skipChangedFlag boolean. Set to true to deny .changed flag unsetting
+    --- @param thePlayer Player
+    --- @param skipChangedFlag boolean. Set to true to deny .changed flag unsetting
     applyCameraToPlayer = function(self, thePlayer, skipChangedFlag)
         if(GetLocalPlayer() == thePlayer) then
             SetCameraField(CAMERA_FIELD_ROTATION, self.yaw*radToDeg, 0)
