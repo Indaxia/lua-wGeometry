@@ -13,6 +13,7 @@ WM("wGeometry", function(import, export, exportDefault)
   local Sphere = nil
   local Ray = nil
   local zTesterLocation = Location(0,0)
+  local zUnlockAbility = FourCC('Aave')
   
   local radToDeg = 180.0 / math.pi
   local degToRad = math.pi / 180.0
@@ -21,13 +22,13 @@ WM("wGeometry", function(import, export, exportDefault)
     MoveLocation(zTesterLocation, x, y)
     return GetLocationZ(zTesterLocation)
   end
-  
+
   local _GetUnitZ = function(u)
-    return GetUnitFlyHeight(u) + getTerrainZ(GetUnitX(u), GetUnitY(u))
+    return GetUnitFlyHeight(u) + BlzGetLocalUnitZ(u)
   end
 
   local _SetUnitZ = function(u, z)
-    SetUnitFlyHeight(u, z - getTerrainZ(GetUnitX(u), GetUnitY(u)), 0)
+    SetUnitFlyHeight(u, z - BlzGetLocalUnitZ(u), 0)
   end
   
   local _GetItemZ = function(i)
@@ -41,8 +42,8 @@ WM("wGeometry", function(import, export, exportDefault)
   -- Must be called for each non-air unit before manipulating Z coordinate
   --- @param u Unit
   local unlockUnitZ = function(u)
-    UnitAddAbility(u , 'Aave')
-    UnitRemoveAbility(u , 'Aave')
+    UnitAddAbility(u, zUnlockAbility)
+    UnitRemoveAbility(u, zUnlockAbility)
   end
   
   
@@ -479,9 +480,7 @@ WM("wGeometry", function(import, export, exportDefault)
     addToUnit = function(self, u)
       SetUnitX(u, GetUnitX(u) + self.x)
       SetUnitY(u, GetUnitY(u) + self.y)
-      if(self.z ~= 0) then -- performance improvement
-        _SetUnitZ(u, _GetUnitZ(u) + self.z)
-      end
+      _SetUnitZ(u, _GetUnitZ(u) + self.z)
       return self
     end,
     
