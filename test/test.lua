@@ -1,6 +1,6 @@
 
-WM("wGeometryTest", function(import, export, exportDefault)
-  local wGeometry = import "wGeometry"
+wGeometryTest = Imp.export("wGeometryTest", function()
+  local wGeometry = Imp.import("wGeometry")
   local Vector3 = wGeometry.Vector3
   local Matrix3 = wGeometry.Matrix3
   local Matrix4 = wGeometry.Matrix4
@@ -63,5 +63,6 @@ WM("wGeometryTest", function(import, export, exportDefault)
   local world = cam:windowToWorld(win)
   print("then world = ", world)
   print("to window again = ", cam:worldToWindow(world))
-  
+
+  return {}
 end)
