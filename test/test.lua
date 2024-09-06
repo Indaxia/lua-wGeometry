@@ -1,6 +1,6 @@
 
 wGeometryTest = Imp.export("wGeometryTest", function()
-  local wGeometry = Imp.import("wGeometry")
+  local wGeometry = Imp.import(wGeometry)
   local Vector3 = wGeometry.Vector3
   local Matrix3 = wGeometry.Matrix3
   local Matrix4 = wGeometry.Matrix4
