@@ -17,7 +17,7 @@ It can work in the mode of a normal object or in the WLPM mode of a module (it i
 ## Installation
 
 1. Install [IMP](https://github.com/Indaxia/imp)
-2. wlpm install https://github.com/Indaxia/lua-wGeometry
+2. imp install https://github.com/Indaxia/lua-wGeometry
 
 ## Usage
 
