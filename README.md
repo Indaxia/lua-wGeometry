@@ -16,12 +16,8 @@ It can work in the mode of a normal object or in the WLPM mode of a module (it i
 
 ## Installation
 
-### Copy code from [/src](/src) and use wGeometry global
-
-### *OR* use [WLPM](https://github.com/Indaxia/wc3-wlpm-module-manager) and import("wGeometry")
-```
-wlpm install https://github.com/Indaxia/lua-wGeometry
-```
+1. Install [IMP](https://github.com/Indaxia/imp)
+2. wlpm install https://github.com/Indaxia/lua-wGeometry
 
 ## Usage
 
