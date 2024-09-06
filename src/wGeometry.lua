@@ -1,9 +1,8 @@
-if(_G["WM"] == nil) then WM = (function(m,h) h(nil,(function() end), (function(e) _G[m] = e end)) end) end -- WLPM MM fallback
-
 -- Warcraft 3 Geometry module by ScorpioT1000 / 2020
 -- Thanks to DGUI by Ashujon / 2009
 -- Thankes to The Mono.Xna Team / 2006
-WM("wGeometry", function(import, export, exportDefault) 
+
+wGeometry = Imp.export("wGeometry", function() 
   local Functions = nil
   local Vector3 = nil
   local Matrix3 = nil
@@ -1581,7 +1580,7 @@ WM("wGeometry", function(import, export, exportDefault)
   
   
   
-  local wGeometry = {
+  return {
     Functions = Functions,
     Vector3 = Vector3,
     Matrix3 = Matrix3,
@@ -1595,6 +1594,4 @@ WM("wGeometry", function(import, export, exportDefault)
     Camera = Camera,
     unlockUnitZ = unlockUnitZ
   }
-  exportDefault(wGeometry)
-  export(wGeometry)
 end)
